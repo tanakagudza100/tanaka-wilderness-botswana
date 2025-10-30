@@ -1,0 +1,32 @@
+# amplify.yml
+version: 1
+applications:
+  - appRoot: /
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+            # Generate Prisma Client
+            - npx prisma generate
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+    backend:
+      phases:
+        build:
+          commands:
+            # Run database migrations on deploy
+            - npx prisma migrate deploy
+    environment:
+      variables:
+        NODE_VERSION: 18
+        NEXT_TELEMETRY_DISABLED: 1
