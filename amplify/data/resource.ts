@@ -1,53 +1,61 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any unauthenticated user can "create", "read", "update", 
-and "delete" any "Todo" records.
-=========================================================================*/
 const schema = a.schema({
-  Todo: a
-    .model({
-      content: a.string(),
-    })
-    .authorization((allow) => [allow.guest()]),
-});
+  Region: a.model({
+    id: a.id(),
+    name: a.string().required(),
+    camps: a.hasMany('Camp', 'regionId')
+  }),
+  
+  Camp: a.model({
+    id: a.id(),
+    name: a.string().required(),
+    category: a.string(), // Adventures, Classic, Premier
+    location: a.string(), // Okavango Delta, Linyanti, etc.
+    accommodationType: a.string(), // FI, DBB, FB+
+    regionId: a.id(),
+    region: a.belongsTo('Region', 'regionId'),
+    rates: a.hasMany('Rate', 'campId')
+  }),
+  
+  Season: a.model({
+    id: a.id(),
+    name: a.string(),
+    startDate: a.date(),
+    endDate: a.date(),
+    rates: a.hasMany('Rate', 'seasonId')
+  }),
+  
+  Rate: a.model({
+    id: a.id(),
+    campId: a.id(),
+    seasonId: a.id(),
+    rateType: a.string(), // Per person sharing, Single supplement, Villa rate
+    currency: a.string(), // USD, ZAR
+    price: a.float(),
+    camp: a.belongsTo('Camp', 'campId'),
+    season: a.belongsTo('Season', 'seasonId')
+  })
+}).authorization(allow => [
+  // Choose one of these authorization patterns:
+  
+  // Option 1: Public API access (for development)
+  allow.publicApiKey(),
+  
+  // Option 2: Authenticated users only
+  // allow.authenticated(),
+  
+  // Option 3: Custom rules for different operations
+  // allow.publicApiKey().to(['read']), // Public can read
+  // allow.authenticated().to(['read', 'create', 'update']) // Auth users can do more
+]);
 
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'identityPool',
+    defaultAuthorizationMode: 'apiKey',
+    // Use 'userPool' if you choose authenticated access above
   },
 });
-
-/*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
-=========================================================================*/
-
-/*
-"use client"
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>() // use this Data client for CRUDL requests
-*/
-
-/*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
-=========================================================================*/
-
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
