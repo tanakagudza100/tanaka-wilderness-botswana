@@ -5,12 +5,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { user, isLoading } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,19 +82,20 @@ export default function Navbar() {
                     Profile
                   </Button>
                 </Link>
-                <Button
-                  onClick={() => signOut()}
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
-                >
-                  <LogOut className="w-4 h-4 mr-1.5" />
-                  Sign Out
-                </Button>
+                <Link href="/auth/logout">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
+                  >
+                    <LogOut className="w-4 h-4 mr-1.5" />
+                    Sign Out
+                  </Button>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center space-x-2 ml-4">
-                <Link href="/signin">
+                <Link href="login">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -103,7 +104,7 @@ export default function Navbar() {
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/signup">
+                <Link href="/login">
                   <Button 
                     size="sm"
                     className="bg-amber-600 hover:bg-amber-700 text-white shadow-md"
@@ -167,7 +168,7 @@ export default function Navbar() {
             >
               About
             </Link>
-            {status === "authenticated" ? (
+            {user ? (
               <>
                 <Link
                   href="/profile"
@@ -176,20 +177,18 @@ export default function Navbar() {
                 >
                   Profile
                 </Link>
-                <button
-                  onClick={() => {
-                    signOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                <Link
+                  href="/auth/logout"
+                  className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign Out
-                </button>
+                </Link>
               </>
             ) : (
               <>
                 <Link
-                  href="/signin"
+                  href="/auth/login"
                   className="block"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -198,7 +197,7 @@ export default function Navbar() {
                   </Button>
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/auth/login"
                   className="block"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
