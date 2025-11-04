@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import ImageCarousel from "@/components/common/ImageCarousel";
@@ -38,6 +38,8 @@ type Camp = {
   rating: number;
   featured?: boolean;
   images?: string[];
+  story?: string;
+  activities?: string[];
 };
 
 const CAMPS: Camp[] = [
@@ -46,11 +48,13 @@ const CAMPS: Camp[] = [
     name: "Wilderness Pelo",
     description:
       "Intimate camp with prime wildlife viewing and traditional service.",
-    image: "/images/wilderness-pelo.svg",
+    image: "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Pelo/Images/Wilderness+Pelo_14.jpg",
     price: 450,
     location: "Okavango Delta",
     rating: 4.8,
     featured: true,
+    story: "Nestled in the heart of the Okavango Delta, Wilderness Pelo offers an intimate safari experience where water and land meet. This exclusive camp provides front-row seats to one of Africa's most spectacular wildlife theaters. Wake to the gentle sounds of the delta, where elephants wade through crystal waters and lions patrol the floodplains at dawn.",
+    activities: ["Game Drives", "Mokoro Excursions", "Sunset Cruises", "Birdwatching", "Nature Walks"],
     images: [
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Pelo/Images/Wilderness+Pelo_14.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Pelo/Images/pelo_2015-06-33e.jpg",
@@ -74,13 +78,15 @@ const CAMPS: Camp[] = [
     location: "Savuti",
     rating: 4.9,
     featured: true,
+    story: "Famous for its predator concentrations and dramatic landscapes, Wilderness Savuti sits in one of Africa's most dynamic ecosystems. Here, the ancient Savuti Channel creates a stage for nature's greatest dramas. Witness lion prides hunting in coordinated precision, hyenas patrolling at dusk, and wild dogs on the chase across open plains.",
+    activities: ["Game Drives", "Predator Tracking", "Star-lit Sleep-outs", "Birdwatching", "Cultural Tours"],
     images: [
+      "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/Wilderness+Savuti.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/1756723752182sleep-outsavuti-botswana-07-25-tc-42.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/1756723752183sleep-outsavuti-botswana-07-25-tc-37.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/1756724173303tent-savuti-botswana-07-25tc-39.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/1756724555221untamed-botswana-07-25-tc-15.JPG",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/1756817733916gamedrive-savuti-botswana-07-25-tc-62.jpg",
-      "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/Wilderness+Savuti.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/Wilderness+Savuti_3.JPG",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/Wilderness+Savuti_1.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Savuti/Images/Savuti051e.jpg",
@@ -90,11 +96,13 @@ const CAMPS: Camp[] = [
     id: "chitabe",
     name: "Wilderness Chitabe",
     description: "Classic big-game viewing with exclusive access.",
-    image: "/images/wilderness-chitabe.svg",
+    image: "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Chitabe/Images/Wilderness+Chitabe_1.jpg",
     price: 500,
     location: "Chitabe",
     rating: 4.7,
     featured: false,
+    story: "Set in a private concession in the eastern Okavango Delta, Wilderness Chitabe combines the best of both worlds - permanent water channels and seasonal floodplains. This classic safari destination offers exceptional big-game viewing year-round, with frequent leopard sightings and large elephant herds that traverse the landscape.",
+    activities: ["Game Drives", "Guided Bush Walks", "Sundowners", "Photography Tours", "Nature Walks"],
     images: [
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Chitabe/Images/Wilderness+Chitabe_1.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_Chitabe/Images/Wilderness+Chitabe_2.jpg",
@@ -110,13 +118,14 @@ const CAMPS: Camp[] = [
     id: "kings-pool",
     name: "Wilderness Kings Pool",
     description: "Waterhole sightings and private-guided walks.",
-    // use the provided S3 images; first image will be used as the primary image
     image:
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_King_s_Pool/Images/Wilderness+King+s+Pool_1.jpg",
     price: 620,
     location: "Linyanti",
     rating: 4.9,
     featured: true,
+    story: "Perched on the banks of the Linyanti River, Wilderness Kings Pool offers a front-row seat to one of Africa's greatest wildlife spectacles. During the dry season, massive elephant herds converge at the waterholes, creating unforgettable viewing opportunities. The camp's elevated position provides panoramic views of the floodplain, where predators and prey engage in the eternal dance of survival.",
+    activities: ["Game Drives", "Waterhole Wildlife Viewing", "Spa Treatments", "Bush Breakfast", "Private Guided Walks"],
     images: [
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_King_s_Pool/Images/Wilderness+King+s+Pool_1.jpg",
       "https://tanaka-images.s3.us-east-1.amazonaws.com/Wilderness_King_s_Pool/Images/Wilderness+King+s+Pool_2.jpg",
@@ -134,10 +143,11 @@ function getCamp(id: string) {
 export default function CampPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const camp = getCamp(params.id);
+  const { id } = use(params);
+  const camp = getCamp(id);
 
   if (!camp) {
     return (
@@ -249,10 +259,7 @@ export default function CampPage({
                 </h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-                    {camp.description} Nestled in the heart of Botswana's pristine wilderness, 
-                    this exclusive safari camp offers an unparalleled blend of luxury and adventure. 
-                    Wake to the sounds of the African bush, where every moment tells a story of 
-                    nature's raw beauty and timeless elegance.
+                    {camp.story || camp.description}
                   </p>
                   <p className="text-gray-300 text-base sm:text-lg leading-relaxed mt-4">
                     Experience intimate wildlife encounters guided by our expert trackers, 
@@ -263,6 +270,38 @@ export default function CampPage({
                   </p>
                 </div>
               </motion.section>
+
+              {/* Activities Section */}
+              {camp.activities && camp.activities.length > 0 && (
+                <motion.section
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  viewport={{ once: true }}
+                  className="bg-slate-800/50 border border-amber-500/20 rounded-2xl p-6 sm:p-8"
+                >
+                  <h3 className="text-xl sm:text-2xl font-serif text-amber-100 mb-6">
+                    Activities Available
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {camp.activities.map((activity, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                        viewport={{ once: true }}
+                        className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-lg border border-slate-700 hover:border-amber-500/30 transition-colors"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center">
+                          <span className="text-amber-400 text-lg">✓</span>
+                        </div>
+                        <span className="text-gray-300 text-sm sm:text-base">{activity}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.section>
+              )}
 
               {/* Highlights */}
               <motion.section

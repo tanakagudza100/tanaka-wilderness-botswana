@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import FloatingNature from "@/components/common/FloatingNature";
+import ActivityBookingModal from "@/components/booking/ActivityBookingModal";
 import { Compass, Calendar } from "lucide-react";
 
 const activities = [
@@ -73,6 +75,14 @@ const activities = [
 ];
 
 export default function ActivitiesPage() {
+  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+  const handleBookNow = (activityTitle: string) => {
+    setSelectedActivity(activityTitle);
+    setIsBookingModalOpen(true);
+  };
+
   return (
     <main className="relative min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       <FloatingNature />
@@ -189,10 +199,7 @@ export default function ActivitiesPage() {
 
                 {/* Book Now Button */}
                 <button
-                  onClick={() => {
-                    const chatbot = document.getElementById('teko-chatbot');
-                    if (chatbot) chatbot.classList.remove('hidden');
-                  }}
+                  onClick={() => handleBookNow(activity.title)}
                   className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg hover:shadow-amber-500/40 transition-all duration-300 flex items-center justify-center gap-2 group/btn"
                 >
                   <Calendar className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
@@ -228,6 +235,15 @@ export default function ActivitiesPage() {
         </motion.div>
       </section>
       </div>
+
+      {/* Booking Modal */}
+      {selectedActivity && (
+        <ActivityBookingModal
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+          activityName={selectedActivity}
+        />
+      )}
     </main>
   );
 }

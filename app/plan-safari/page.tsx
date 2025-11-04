@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import FloatingNature from "@/components/common/FloatingNature";
 import TekoChatbot from "@/components/common/TekoChatbot";
+import InquiryModal from "@/components/booking/InquiryModal";
 import { Calendar, Users, DollarSign, Compass, ChevronDown, Star, MapPin, ArrowRight } from "lucide-react";
 
 const lodges = [
@@ -105,6 +106,9 @@ export default function PlanSafariPage() {
     experience: "",
   });
   const [showResults, setShowResults] = useState(false);
+  const [displayedLodges, setDisplayedLodges] = useState(2);
+  const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
+  const [selectedLodge, setSelectedLodge] = useState("");
 
   const handlePlanSafari = () => {
     setShowResults(true);
@@ -125,6 +129,15 @@ export default function PlanSafariPage() {
     }
     
     return filtered;
+  };
+
+  const handleInquireNow = (lodgeName: string) => {
+    setSelectedLodge(lodgeName);
+    setIsInquiryModalOpen(true);
+  };
+
+  const handleLoadMore = () => {
+    setDisplayedLodges(prev => Math.min(prev + 2, lodges.length));
   };
 
   return (
@@ -331,7 +344,7 @@ export default function PlanSafariPage() {
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-20">
-              {getFilteredLodges().map((lodge, index) => (
+              {getFilteredLodges().slice(0, displayedLodges).map((lodge, index) => (
                 <motion.div
                   key={lodge.name}
                   initial={{ opacity: 0, y: 30 }}
@@ -388,18 +401,32 @@ export default function PlanSafariPage() {
                     </div>
 
                     <button
-                      onClick={() => {
-                        const chatbot = document.getElementById('teko-chatbot');
-                        if (chatbot) chatbot.classList.remove('hidden');
-                      }}
+                      onClick={() => handleInquireNow(lodge.name)}
                       className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg hover:shadow-amber-500/40 transition-all duration-300"
                     >
-                      Enquire Now
+                      Inquire Now
                     </button>
                   </div>
                 </motion.div>
               ))}
             </div>
+
+            {/* Load More Button */}
+            {getFilteredLodges().length > displayedLodges && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-center"
+              >
+                <button
+                  onClick={handleLoadMore}
+                  className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-amber-500/40 transition-all duration-300"
+                >
+                  Show Me More Perfect Lodges
+                </button>
+              </motion.div>
+            )}
           </section>
         )}
 
@@ -560,6 +587,13 @@ export default function PlanSafariPage() {
       </div>
 
       <TekoChatbot />
+      
+      {/* Inquiry Modal */}
+      <InquiryModal
+        isOpen={isInquiryModalOpen}
+        onClose={() => setIsInquiryModalOpen(false)}
+        lodgeName={selectedLodge}
+      />
     </main>
   );
 }
