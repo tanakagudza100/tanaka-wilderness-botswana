@@ -19,8 +19,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
-  if (error) return <div className="p-8 text-red-500">{error.message}</div>;
+
 
   return (
     <nav
