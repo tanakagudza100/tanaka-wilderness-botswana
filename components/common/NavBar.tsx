@@ -5,12 +5,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { user, isLoading } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,49 +70,15 @@ export default function Navbar() {
               About
             </Link>
 
-            {status === "authenticated" ? (
-              <div className="flex items-center space-x-2 ml-4">
-                <Link href="/profile">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
-                  >
-                    <User className="w-4 h-4 mr-1.5" />
-                    Profile
-                  </Button>
-                </Link>
-                <Button
-                  onClick={() => signOut()}
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
-                >
-                  <LogOut className="w-4 h-4 mr-1.5" />
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2 ml-4">
-                <Link href="/signin">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button 
-                    size="sm"
-                    className="bg-amber-600 hover:bg-amber-700 text-white shadow-md"
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
-              </div>
-            )}
+            <Link href="login">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
+              >
+                Sign In
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -132,82 +98,54 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/98 backdrop-blur-md border-b border-white/10 shadow-xl">
             <div className="p-4 space-y-2">
-            <Link
-              href="/camps"
-              className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Camps
-            </Link>
-            <Link
-              href="/experiences"
-              className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Experiences
-            </Link>
-            <Link
-              href="/activities"
-              className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Activities
-            </Link>
-            <Link
-              href="/offers"
-              className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Offers
-            </Link>
-            <Link
-              href="/about"
-              className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            {status === "authenticated" ? (
-              <>
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-                  onClick={() => setIsMobileMenuOpen(false)}
+              <Link
+                href="/camps"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Camps
+              </Link>
+              <Link
+                href="/experiences"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Experiences
+              </Link>
+              <Link
+                href="/activities"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Activities
+              </Link>
+              <Link
+                href="/offers"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Offers
+              </Link>
+              <Link
+                href="/about"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link
+                href="/auth/login"
+                className="block"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-gray-300 hover:text-amber-200 hover:bg-white/5"
                 >
-                  Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    signOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/signin"
-                  className="block"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-gray-300 hover:text-amber-200 hover:bg-white/5">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link
-                  href="/signup"
-                  className="block"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
+                  Sign In
+                </Button>
+              </Link>
             </div>
           </div>
         )}

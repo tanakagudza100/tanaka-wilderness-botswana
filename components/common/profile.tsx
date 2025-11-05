@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,11 +23,11 @@ import {
 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { user, isLoading } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: "John Doe",
-    email: "john@example.com",
+    name: user?.name || "John Doe",
+    email: user?.email || "john@example.com",
     phone: "+267 123 4567",
     location: "Gaborone, Botswana",
   });
