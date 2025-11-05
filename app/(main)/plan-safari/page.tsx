@@ -160,7 +160,7 @@ export default function PlanSafariPage() {
             
             {/* Animated elephants */}
             <motion.div
-              animate={{ x: [-100, window.innerWidth + 100] }}
+              animate={{ x: [-100, 2000] }}
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
               className="absolute top-20 text-6xl opacity-30"
             >
