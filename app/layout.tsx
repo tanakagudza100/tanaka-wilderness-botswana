@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/common/Footer";
 import Navigation from "@/components/shared/Navigation";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
+import { Providers } from "@/provider/sessionProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -31,7 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <link
           rel="preconnect"
@@ -42,14 +43,8 @@ export default async function RootLayout({
           href="https://tanaka-images.s3.us-east-1.amazonaws.com"
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <UserProvider>
-          <Navigation />
-          {children}
-          <Footer />
-        </UserProvider>
+      <body className={`${inter.variable} ${robotoMono.variable} antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

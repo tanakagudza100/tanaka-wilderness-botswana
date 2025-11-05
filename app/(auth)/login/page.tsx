@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
-import { signIn } from "../action/auth";
+import { signIn } from "../../(main)/action/auth";
 
 export default function LoginPage() {
   const router = useRouter();

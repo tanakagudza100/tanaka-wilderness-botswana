@@ -1,169 +1,225 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, LogIn, LogOut, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Menu, X, User, LogOut } from "lucide-react";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
-export default function Navigation() {
+export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  const { user, isLoading, error } = useUser();
 
   useEffect(() => {
-    let ticking = false;
-    
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setIsScrolled(window.scrollY > 20);
-          ticking = false;
-        });
-        ticking = true;
-      }
+      setIsScrolled(window.scrollY > 20);
     };
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const closeMobileMenu = useCallback(() => {
-    setIsMobileMenuOpen(false);
-  }, []);
-
-  const navLinks = [
-    { name: "Camps", href: "/camps" },
-    { name: "Activities", href: "/activities" },
-    { name: "Plan Safari", href: "/plan-safari" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ];
+  if (isLoading) return <div className="p-8">Loading...</div>;
+  if (error) return <div className="p-8 text-red-500">{error.message}</div>;
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-slate-900/95 backdrop-blur-md border-b border-amber-500/20 shadow-lg"
-          : "bg-gradient-to-b from-black/70 to-transparent"
+          ? "bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg"
+          : "bg-linear-to-b from-black/60 to-transparent"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-800 rounded-full flex items-center justify-center shadow-lg transition-transform duration-200 hover:scale-105">
-              <span className="text-white font-bold text-xl">W</span>
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-amber-100 group-hover:text-white transition-colors duration-200">
-                Wilderness Botswana
-              </h1>
-              <p className="text-xs text-amber-400/70 group-hover:text-amber-300 transition-colors duration-200">
-                Unforgettable Safari Adventures
-              </p>
-            </div>
+          <Link href="/" className="relative group">
+            <h1 className="relative text-xl font-semibold text-amber-100 hover:text-amber-200 transition-colors duration-200">
+              Wilderness Botswana
+            </h1>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="px-4 py-2 text-sm font-medium text-gray-200 hover:text-amber-100 hover:bg-amber-600/10 rounded-lg transition-all duration-200"
-              >
-                {link.name}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center space-x-1">
+            <Link
+              href="/camps"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all duration-200"
+            >
+              Camps
+            </Link>
+            <Link
+              href="/experiences"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all duration-200"
+            >
+              Experiences
+            </Link>
+            <Link
+              href="/activities"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all duration-200"
+            >
+              Activities
+            </Link>
+            <Link
+              href="/offers"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all duration-200"
+            >
+              Offers
+            </Link>
+            <Link
+              href="/about"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all duration-200"
+            >
+              About
+            </Link>
 
-            {/* Auth Buttons */}
-            <div className="ml-4 flex items-center gap-2">
-              {isSignedIn ? (
-                <>
-                  <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-100 hover:text-white bg-white/5 hover:bg-white/10 border border-amber-500/30 rounded-lg transition-all duration-200">
-                    <User className="w-4 h-4" />
-                    <span>Profile</span>
-                  </button>
-                  <button
-                    onClick={() => setIsSignedIn(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-500 rounded-lg transition-all duration-200"
+            {user ? (
+              <div className="flex items-center space-x-2 ml-4">
+                <Link href="/profile">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
                   >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setIsSignedIn(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-lg shadow-lg transition-all duration-200"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Sign In</span>
-                </button>
-              )}
-            </div>
+                    <User className="w-4 h-4 mr-1.5" />
+                    Profile
+                  </Button>
+                </Link>
+                <Link href="/api/auth/logout">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
+                  >
+                    <LogOut className="w-4 h-4 mr-1.5" />
+                    Sign Out
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 ml-4">
+                <Link href="/api/auth/login">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-300 hover:text-amber-200 hover:bg-white/5"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/api/auth/login?screen_hint=signup">
+                  <Button
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white shadow-md"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-amber-100 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-            aria-label="Toggle menu"
+            className="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-amber-500/20 bg-slate-900/95 backdrop-blur-md">
-          <div className="container mx-auto px-4 py-6 space-y-2">
-            {navLinks.map((link) => (
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/98 backdrop-blur-md border-b border-white/10 shadow-xl">
+            <div className="p-4 space-y-2">
               <Link
-                key={link.name}
-                href={link.href}
-                onClick={closeMobileMenu}
-                className="block px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-amber-600/20 rounded-lg transition-all duration-200"
+                href="/camps"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                {link.name}
+                Camps
               </Link>
-            ))}
-
-            {/* Mobile Auth Buttons */}
-            <div className="pt-4 border-t border-white/10 space-y-2">
-              {isSignedIn ? (
+              <Link
+                href="/experiences"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Experiences
+              </Link>
+              <Link
+                href="/activities"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Activities
+              </Link>
+              <Link
+                href="/offers"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Offers
+              </Link>
+              <Link
+                href="/about"
+                className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              {user ? (
                 <>
-                  <button className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-amber-100 bg-white/5 hover:bg-white/10 border border-amber-500/30 rounded-lg transition-all duration-200">
-                    <User className="w-4 h-4" />
-                    <span>Profile</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsSignedIn(false);
-                      closeMobileMenu();
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-red-600 hover:bg-red-500 rounded-lg transition-all duration-200"
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
+                    Profile
+                  </Link>
+                  <Link
+                    href="/api/auth/logout"
+                    className="block px-4 py-2.5 text-sm font-medium text-gray-300 hover:text-amber-200 hover:bg-white/5 rounded-lg transition-all"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign Out
+                  </Link>
                 </>
               ) : (
-                <button
-                  onClick={() => {
-                    setIsSignedIn(true);
-                    closeMobileMenu();
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-lg transition-all duration-200"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Sign In</span>
-                </button>
+                <>
+                  <Link
+                    href="/api/auth/login"
+                    className="block"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-gray-300 hover:text-amber-200 hover:bg-white/5"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link
+                    href="/api/auth/login?screen_hint=signup"
+                    className="block"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button
+                      size="sm"
+                      className="w-full bg-amber-600 hover:bg-amber-700"
+                    >
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 }
